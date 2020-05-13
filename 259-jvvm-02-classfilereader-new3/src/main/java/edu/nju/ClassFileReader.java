@@ -20,7 +20,10 @@ public class ClassFileReader {
          * case 3 archived file
          * case 4 classpath with path separator
          */
-        return null;
+        if (classpath.contains(PATH_SEPARATOR)) return new CompositeEntry(classpath);
+        else if (classpath.contains(".jar")||classpath.contains(".JAR")) return new ArchivedEntry(classpath);
+        else if (classpath.contains("*")) return new WildEntry(classpath);
+        else return new DirEntry(classpath);
     }
 
     /**
@@ -30,14 +33,15 @@ public class ClassFileReader {
      * @return content of classfile
      */
     public static byte[] readClassFile(String classpath,String className) throws ClassNotFoundException{
+        if (classpath==null||className==null) throw new ClassNotFoundException();
         className = IOUtil.transform(className);
         className += ".class";
         bootStrapReader = chooseEntryType(classpath);
-        byte[] ret = new byte[0];
+        byte[] ret = null;
         try {
             ret = bootStrapReader.readClassFile(className);
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         if (ret==null)throw new ClassNotFoundException();
         return ret;

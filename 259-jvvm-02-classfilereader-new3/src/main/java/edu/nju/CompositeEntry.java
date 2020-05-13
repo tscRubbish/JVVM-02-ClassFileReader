@@ -12,6 +12,13 @@ public class CompositeEntry extends Entry{
 
     @Override
     public byte[] readClassFile(String className) throws IOException {
-        return null;
+        String[] list=classpath.split(PATH_SEPARATOR);
+        for (String path:list){
+            Entry en=ClassFileReader.chooseEntryType(path);
+            try{
+                return en.readClassFile(className);
+            }catch(Exception e){}
+        }
+        throw new IOException();
     }
 }
